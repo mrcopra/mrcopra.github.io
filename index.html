@@ -1,1 +1,525 @@
-<h1>Hello</h1>
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Gold & Crypto Tracker + Analyzer</title>
+  <meta name="description" content="Real‑time gold & crypto dashboard with live Binance prices, TradingView charts, and a built‑in analyzer (EMA/RSI/MACD) for buy/sell signals."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: light dark; }
+    html, body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+    .glass { background: linear-gradient(180deg, rgb(255 255 255 / 0.75), rgb(255 255 255 / 0.6)); backdrop-filter: blur(10px); }
+    .dark .glass { background: linear-gradient(180deg, rgb(38 38 38 / 0.75), rgb(38 38 38 / 0.5)); }
+    .card { box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.25); }
+    .badge { padding: 2px 8px; border-radius: 9999px; font-size: .75rem; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <header class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Live Gold & Crypto Tracker</h1>
+        <p class="text-slate-600 dark:text-slate-300 mt-1">Live Binance prices + TradingView charts + on‑page Analyzer (EMA/RSI/MACD) for Buy/Sell calls.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" class="rounded-2xl px-4 py-2 border border-slate-300 dark:border-slate-700 card glass">🌙 Toggle Theme</button>
+        <button id="resetBtn" class="rounded-2xl px-4 py-2 border border-rose-300 dark:border-rose-700 card glass">Reset</button>
+      </div>
+    </header>
+
+    <!-- KPI row -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Gold -->
+      <div class="card glass rounded-3xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-semibold">Gold Spot (XAU/USD)</h2>
+          <span id="goldBadge" class="badge bg-slate-200 dark:bg-slate-800">—</span>
+        </div>
+        <div class="text-3xl font-bold"><span id="goldPrice">—</span> <span class="text-base text-slate-500 ml-1">USD/oz</span></div>
+        <div class="tradingview-widget-container mt-3" style="height:150px">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {
+            "symbol": "OANDA:XAUUSD",
+            "width": "100%",
+            "height": "150",
+            "locale": "en",
+            "dateRange": "1D",
+            "colorTheme": "dark",
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+      <!-- BTC -->
+      <div class="card glass rounded-3xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-semibold">Bitcoin (BTCUSDT)</h2>
+          <span id="btcBadge" class="badge bg-slate-200 dark:bg-slate-800">—</span>
+        </div>
+        <div class="text-3xl font-bold"><span id="btcPrice">—</span> <span class="text-base text-slate-500 ml-1">USDT</span></div>
+        <div class="tradingview-widget-container mt-3" style="height:150px">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {
+            "symbol": "BINANCE:BTCUSDT",
+            "width": "100%",
+            "height": "150",
+            "locale": "en",
+            "dateRange": "1D",
+            "colorTheme": "dark",
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+      <!-- ETH -->
+      <div class="card glass rounded-3xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-semibold">Ethereum (ETHUSDT)</h2>
+          <span id="ethBadge" class="badge bg-slate-200 dark:bg-slate-800">—</span>
+        </div>
+        <div class="text-3xl font-bold"><span id="ethPrice">—</span> <span class="text-base text-slate-500 ml-1">USDT</span></div>
+        <div class="tradingview-widget-container mt-3" style="height:150px">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {
+            "symbol": "BINANCE:ETHUSDT",
+            "width": "100%",
+            "height": "150",
+            "locale": "en",
+            "dateRange": "1D",
+            "colorTheme": "dark",
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <!-- Watchlist + Big Chart + Analyzer -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Watchlist -->
+      <div class="card glass rounded-3xl p-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold">Crypto Watchlist</h3>
+          <span id="lastUpdated" class="text-xs text-slate-500">—</span>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-2">
+          <input id="addSymbol" placeholder="e.g. SOLUSDT" class="rounded-xl px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"/>
+          <button id="addBtn" class="rounded-xl px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold">Add</button>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+          <span class="opacity-70 self-center">Quick add:</span>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="BTCUSDT">BTC</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="ETHUSDT">ETH</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="BNBUSDT">BNB</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="SOLUSDT">SOL</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="XRPUSDT">XRP</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="ADAUSDT">ADA</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="DOGEUSDT">DOGE</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="TONUSDT">TON</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="AVAXUSDT">AVAX</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="TRXUSDT">TRX</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="SHIBUSDT">SHIB</button>
+          <button class="qadd rounded-full px-3 py-1 bg-slate-200 dark:bg-slate-800" data-sym="DOTUSDT">DOT</button>
+        </div>
+
+        <ul id="watchlist" class="mt-3 divide-y divide-slate-200 dark:divide-slate-800"></ul>
+        <p class="mt-3 text-xs text-slate-500">Live prices via <b>Binance WebSocket</b>. Charts & TA widget via <b>TradingView</b>. On‑page analyzer uses EMA/RSI/MACD from Binance candles.</p>
+      </div>
+
+      <!-- Big Chart -->
+      <div class="lg:col-span-2 card glass rounded-3xl p-4">
+        <h3 class="text-xl font-semibold mb-3">Live Chart</h3>
+        <div id="bigChart" class="rounded-2xl overflow-hidden">
+          <div class="tradingview-widget-container" style="height:460px;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {
+              "autosize": true,
+              "symbol": "BINANCE:BTCUSDT",
+              "interval": "60",
+              "timezone": "Asia/Riyadh",
+              "theme": "dark",
+              "style": "1",
+              "hide_top_toolbar": false,
+              "hide_legend": false,
+              "withdateranges": true,
+              "hide_volume": false,
+              "allow_symbol_change": true,
+              "calendar": false
+            }
+            </script>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Analyzer Row -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      <div class="card glass rounded-3xl p-4">
+        <h3 class="text-xl font-semibold">Alerts & Settings</h3>
+        <div class="mt-3 grid grid-cols-1 gap-3 text-sm">
+          <label class="font-medium">Telegram Relay URL
+            <input id="tgRelay" placeholder="https://your-worker.yourdomain.workers.dev/alert" class="mt-1 w-full rounded-xl px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"/>
+          </label>
+          <label class="font-medium">Chat ID (optional)
+            <input id="tgChatId" placeholder="@yourchannel or 123456" class="mt-1 w-full rounded-xl px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"/>
+          </label>
+          <label class="font-medium">Auto‑analyze interval
+            <select id="bgInterval" class="mt-1 rounded-xl px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+              <option value="15m">15m</option>
+              <option value="1h" selected>1h</option>
+              <option value="4h">4h</option>
+              <option value="1d">1d</option>
+            </select>
+          </label>
+          <label class="font-medium flex items-center gap-2"><input id="alertsToggle" type="checkbox"> Enable Telegram alerts on verdict flip (Buy/Sell/Overbought/Oversold)</label>
+          <button id="saveSettings" class="rounded-xl px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold">Save</button>
+          <p class="text-xs text-slate-500">Note: To keep your bot token safe, use the provided Cloudflare Worker (or any serverless) relay. This page never stores your token.</p>
+        </div>
+      </div>
+      <div class="card glass rounded-3xl p-4">
+        <h3 class="text-xl font-semibold">Analyzer</h3>
+        <div class="mt-3 flex flex-wrap gap-2 items-end">
+          <label class="text-sm font-medium">Symbol (Binance)
+            <input id="anaSymbol" value="BTCUSDT" class="ml-2 rounded-xl px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"/>
+          </label>
+          <label class="text-sm font-medium">Interval
+            <select id="anaInterval" class="ml-2 rounded-xl px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+              <option>15m</option>
+              <option selected>1h</option>
+              <option>4h</option>
+              <option>1d</option>
+            </select>
+          </label>
+          <button id="runAnalyze" class="ml-auto rounded-xl px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold">Analyze</button>
+        </div>
+        <div id="anaOutput" class="mt-4 text-sm space-y-2"></div>
+      </div>
+
+      <div class="card glass rounded-3xl p-4">
+        <h3 class="text-xl font-semibold">TradingView Technicals</h3>
+        <p class="text-xs text-slate-500">Trusted aggregated indicator summary.</p>
+        <div id="tvTA" class="mt-3">
+          <div class="tradingview-widget-container" style="height: 420px;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+            {
+              "interval": "1h",
+              "width": "100%",
+              "isTransparent": true,
+              "height": "420",
+              "symbol": "BINANCE:BTCUSDT",
+              "showIntervalTabs": true,
+              "locale": "en",
+              "colorTheme": "dark"
+            }
+            </script>
+          </div>
+        </div>
+      </div>
+
+      <div class="card glass rounded-3xl p-4">
+        <h3 class="text-xl font-semibold">Gold Technicals</h3>
+        <p class="text-xs text-slate-500">Spot gold technical summary from TradingView.</p>
+        <div id="tvXAU" class="mt-3">
+          <div class="tradingview-widget-container" style="height: 420px;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+            {
+              "interval": "1h",
+              "width": "100%",
+              "isTransparent": true,
+              "height": "420",
+              "symbol": "OANDA:XAUUSD",
+              "showIntervalTabs": true,
+              "locale": "en",
+              "colorTheme": "dark"
+            }
+            </script>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center text-xs text-slate-500">
+      <p>Disclaimer: Informational only. Not financial advice.</p>
+    </footer>
+  </div>
+
+  <script>
+    /*
+    ===== Minimal Cloudflare Worker Relay (save as worker) =====
+    export default {
+      async fetch(req, env) {
+        if (req.method !== 'POST') return new Response('Only POST', { status: 405 });
+        const body = await req.json().catch(()=>({}));
+        const text = body.text || 'Hello';
+        const chatId = body.chat_id || env.TG_CHAT_ID; // optional override
+        const token = env.TG_BOT_TOKEN; // set in Worker secrets
+        const url = `https://api.telegram.org/bot${token}/sendMessage`;
+        const r = await fetch(url, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ chat_id: chatId, text, parse_mode:'HTML', disable_web_page_preview:true }) });
+        return new Response(await r.text(), { status:r.ok?200:500 });
+      }
+    }
+    // Bind secrets: wrangler secret put TG_BOT_TOKEN; wrangler secret put TG_CHAT_ID
+    ============================================================
+    */
+
+    // ---- Theme ----
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const themeToggle = document.getElementById('themeToggle');
+    function applyTheme(mode){
+      if(mode==='dark' || (!mode && prefersDark.matches)) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark')?'dark':'light');
+    }
+    applyTheme(localStorage.getItem('theme'));
+    themeToggle.addEventListener('click',()=>applyTheme(document.documentElement.classList.contains('dark')?'light':'dark'));
+
+    // ---- Live Binance WebSockets for top cards + watchlist ----
+    const watchlistEl = document.getElementById('watchlist');
+    const lastUpdatedEl = document.getElementById('lastUpdated');
+    const addBtn = document.getElementById('addBtn');
+    const addSymbol = document.getElementById('addSymbol');
+    const WL_KEY='crypto_wl_v1';
+
+    let sockets = {}; // symbol -> ws
+    const SIG_MEM_KEY = 'sig_mem_tg_v1';
+
+    function loadWatchlist(){
+      try{ return JSON.parse(localStorage.getItem(WL_KEY)) || ['BTCUSDT','ETHUSDT']; }catch{return ['BTCUSDT','ETHUSDT'];}
+    }
+    function saveWatchlist(arr){ localStorage.setItem(WL_KEY, JSON.stringify(arr)); }
+
+    function connectWS(symbol, onPrice){
+      const stream = symbol.toLowerCase()+ '@trade';
+      const url = 'wss://stream.binance.com:9443/ws/'+stream;
+      const ws = new WebSocket(url);
+      ws.onmessage = (ev)=>{
+        const d = JSON.parse(ev.data);
+        const price = parseFloat(d.p);
+        onPrice(price);
+        lastUpdatedEl.textContent = new Date().toLocaleString('en-US', { hour12:false });
+      };
+      ws.onclose = ()=>{ setTimeout(()=>connectWS(symbol,onPrice), 2000); };
+      sockets[symbol]=ws;
+    }
+
+    function format(n){ return (n!==undefined && n!==null) ? Number(n).toLocaleString(undefined,{maximumFractionDigits:2}) : '—'; }
+
+    function renderWatchlist(){
+      const list = loadWatchlist();
+      watchlistEl.innerHTML='';
+      list.forEach((sym, idx)=>{
+        const li = document.createElement('li');
+        li.className='py-3 flex items-center justify-between';
+        li.innerHTML = `
+          <div class="flex items-center gap-2">
+            <button class="text-xs px-2 py-1 rounded-full bg-slate-200 dark:bg-slate-800" data-ana="${sym}">Analyze</button>
+            <div class="text-base font-semibold">${sym}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="sig-${idx}" class="badge bg-slate-200 dark:bg-slate-800">—</span>
+            <div id="px-${idx}" class="text-2xl font-bold tabular-nums">—</div>
+            <button class="text-rose-500" data-del="${sym}">✕</button>
+          </div>`;
+        watchlistEl.appendChild(li);
+        connectWS(sym, (price)=>{ const px = document.getElementById('px-'+idx); if(px) px.textContent = format(price); lastUpdatedEl.textContent = new Date().toLocaleString('en-US',{hour12:false}); });
+      });
+    }
+
+    // Quick add buttons
+    document.addEventListener('click', (e)=>{
+      const q = e.target.closest('.qadd'); if(!q) return;
+      const sym = q.dataset.sym; const list = loadWatchlist(); if(!list.includes(sym)){ list.push(sym); saveWatchlist(list); renderWatchlist(); loadBigChart('BINANCE:'+sym); }
+    });
+
+    addBtn.addEventListener('click',()=>{
+      const sym = (addSymbol.value||'').toUpperCase().trim();
+      if(!sym) return;
+      const list = loadWatchlist();
+      if(list.includes(sym)) return alert('Already in watchlist');
+      list.push(sym); saveWatchlist(list); renderWatchlist(); loadBigChart('BINANCE:'+sym);
+    });.addEventListener('click',()=>{
+      const sym = (addSymbol.value||'').toUpperCase().trim();
+      if(!sym) return;
+      const list = loadWatchlist();
+      if(list.includes(sym)) return alert('Already in watchlist');
+      list.push(sym); saveWatchlist(list); renderWatchlist(); loadBigChart('BINANCE:'+sym);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click',()=>{
+      Object.values(sockets).forEach(ws=>{ try{ws.close();}catch{} });
+      sockets={};
+      localStorage.removeItem(WL_KEY);
+      renderWatchlist();
+    });
+
+    // ---- Top cards live prices via WS ----
+    connectWS('BTCUSDT', (p)=>{ document.getElementById('btcPrice').textContent = format(p); });
+    connectWS('ETHUSDT', (p)=>{ document.getElementById('ethPrice').textContent = format(p); });
+
+    // ---- Gold price (approx, hourly) ----
+    async function updateGold(){
+      try{
+        const r = await fetch('https://api.exchangerate.host/latest?base=XAU&symbols=USD');
+        const j = await r.json();
+        const gold = j.rates?.USD; // USD per XAU
+        document.getElementById('goldPrice').textContent = gold? Number(gold).toFixed(2): '—';
+      }catch{ document.getElementById('goldPrice').textContent = '—'; }
+    }
+    updateGold(); setInterval(updateGold, 60_000);
+
+    // ---- Big chart switcher ----
+    function loadBigChart(tvSymbol){
+      const container = document.querySelector('#bigChart .tradingview-widget-container');
+      container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
+      const s = document.createElement('script'); s.type='text/javascript'; s.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'; s.async=true;
+      s.text = JSON.stringify({ autosize:true, symbol: tvSymbol, interval:'60', timezone:'Asia/Riyadh', theme: document.documentElement.classList.contains('dark')?'dark':'light', style:'1', hide_top_toolbar:false, hide_legend:false, withdateranges:true, hide_volume:false, allow_symbol_change:true, calendar:false });
+      container.appendChild(s);
+    }
+
+    // ---- Analyzer (EMA/RSI/MACD from Binance klines) ----
+    const anaSymbol = document.getElementById('anaSymbol');
+    const anaInterval = document.getElementById('anaInterval');
+    const runAnalyze = document.getElementById('runAnalyze');
+    const anaOutput = document.getElementById('anaOutput');
+
+    async function fetchKlines(symbol, interval, limit=500){
+      const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+      const r = await fetch(url); const j = await r.json();
+      if(!Array.isArray(j)) throw new Error('Binance error');
+      return j.map(row=>({ time: row[0], open:+row[1], high:+row[2], low:+row[3], close:+row[4], volume:+row[5] }));
+    }
+
+    function SMA(vals, period){ if(vals.length<period) return null; let s=0; for(let i=vals.length-period;i<vals.length;i++) s+=vals[i]; return s/period; }
+    function EMA(vals, period){ if(vals.length<period) return null; const k=2/(period+1); let prev=SMA(vals.slice(0,period),period); for(let i=period;i<vals.length;i++) prev = vals[i]*k + prev*(1-k); return prev; }
+    function RSI(vals, period=14){ if(vals.length<=period) return null; let gains=0,losses=0; for(let i=vals.length-period;i<vals.length;i++){ const d=vals[i]-vals[i-1]; if(d>0) gains+=d; else losses-=d; } const ag=gains/period, al=losses/period; if(al===0) return 100; const rs=ag/al; return 100-(100/(1+rs)); }
+    function MACD(vals){ const m12=EMA(vals,12), m26=EMA(vals,26); if(m12===null||m26===null) return null; const macd=m12-m26; const macdSeries=[]; for(let i=0;i<vals.length;i++){ const sub=vals.slice(0,i+1); const e12=EMA(sub,12), e26=EMA(sub,26); if(e12!==null&&e26!==null) macdSeries.push(e12-e26); } if(macdSeries.length<9) return {macd, signal:null, hist:null}; const k=2/(9+1); let prev = macdSeries.slice(0,9).reduce((a,b)=>a+b,0)/9; for(let i=9;i<macdSeries.length;i++) prev = macdSeries[i]*k + prev*(1-k); const signal=prev; return {macd, signal, hist: macd - signal}; }
+
+    function labelSignal({ema50, ema200, rsi, macd}){
+      let calls=[];
+      if(ema50 && ema200){ calls.push( ema50>ema200 ? 'trend ↑ (EMA50>EMA200)' : 'trend ↓ (EMA50<EMA200)' ); }
+      if(typeof rsi==='number'){ if(rsi>70) calls.push('overbought'); else if(rsi<30) calls.push('oversold'); else calls.push(`RSI ${rsi.toFixed(1)}`); }
+      if(macd && macd.signal!==null){ calls.push( macd.macd>macd.signal ? 'MACD ↑' : 'MACD ↓'); }
+      let score=0; if(ema50>ema200) score++; else score--; if(macd&&macd.signal!==null) score += (macd.macd>macd.signal?1:-1); if(rsi>55) score++; if(rsi<45) score--;
+      let verdict='Hold', cls='bg-amber-200 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100';
+      if(score>=2) { verdict='Buy'; cls='bg-green-200 text-green-900 dark:bg-green-900/40 dark:text-green-100'; }
+      if(score<=-2){ verdict='Sell'; cls='bg-rose-200 text-rose-900 dark:bg-rose-900/40 dark:text-rose-100'; }
+      return {verdict, cls, detail: calls.join(' · '), score};
+    }
+
+    async function analyze(symbol, interval){
+      anaOutput.textContent = 'Analyzing...';
+      try{
+        const kl = await fetchKlines(symbol, interval, 500);
+        const closes = kl.map(k=>k.close);
+        const ema50 = EMA(closes,50); const ema200 = EMA(closes,200);
+        const rsi = RSI(closes,14);
+        const macd = MACD(closes);
+        const res = labelSignal({ema50, ema200, rsi, macd});
+        anaOutput.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="badge ${res.cls}">${res.verdict}</span>
+            <span class="text-xs text-slate-500">score ${res.score}</span>
+          </div>
+          <ul class="mt-2 list-disc ml-5 text-slate-700 dark:text-slate-300">
+            <li>EMA50: <b>${ema50?ema50.toFixed(2):'—'}</b> · EMA200: <b>${ema200?ema200.toFixed(2):'—'}</b></li>
+            <li>RSI(14): <b>${typeof rsi==='number'?rsi.toFixed(1):'—'}</b></li>
+            <li>MACD(12,26,9): <b>${macd&&macd.macd?macd.macd.toFixed(2):'—'}</b> · Signal: <b>${macd&&macd.signal?macd.signal.toFixed(2):'—'}</b> · Hist: <b>${macd&&macd.hist?macd.hist.toFixed(2):'—'}</b></li>
+          </ul>
+          <p class="mt-2 text-xs text-slate-500">Source: Binance candles. Cross‑check with TradingView Technicals panel for consensus.</p>`;
+      }catch(e){ anaOutput.textContent = 'Analysis failed: '+e.message; }
+    }
+
+    runAnalyze.addEventListener('click', ()=>{
+      const sym = anaSymbol.value.toUpperCase().trim(); const iv = anaInterval.value.trim(); analyze(sym, iv);
+      const container = document.querySelector('#tvTA .tradingview-widget-container');
+      container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
+      const s = document.createElement('script'); s.type='text/javascript'; s.src='https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js'; s.async=true;
+      s.text = JSON.stringify({ interval: iv, width: '100%', isTransparent: true, height: 420, symbol: 'BINANCE:'+sym, showIntervalTabs: true, locale: 'en', colorTheme: document.documentElement.classList.contains('dark')?'dark':'light' });
+      container.appendChild(s);
+      loadBigChart('BINANCE:'+sym);
+    });
+
+    // Telegram alerts
+    const tgRelay = document.getElementById('tgRelay');
+    const tgChatId = document.getElementById('tgChatId');
+    const alertsToggle = document.getElementById('alertsToggle');
+    const bgIntervalSel = document.getElementById('bgInterval');
+    const saveSettingsBtn = document.getElementById('saveSettings');
+
+    function loadSettings(){
+      return {
+        relay: localStorage.getItem('tgRelay')||'',
+        chat: localStorage.getItem('tgChatId')||'',
+        alerts: localStorage.getItem('alertsToggle')==='1',
+        bgIv: localStorage.getItem('bgInterval')||'1h'
+      }
+    }
+    function applySettingsUI(){ const s=loadSettings(); tgRelay.value=s.relay; tgChatId.value=s.chat; alertsToggle.checked=s.alerts; bgIntervalSel.value=s.bgIv; }
+    function saveSettings(){ localStorage.setItem('tgRelay', tgRelay.value.trim()); localStorage.setItem('tgChatId', tgChatId.value.trim()); localStorage.setItem('alertsToggle', alertsToggle.checked?'1':'0'); localStorage.setItem('bgInterval', bgIntervalSel.value); }
+    saveSettingsBtn.addEventListener('click', ()=>{ saveSettings(); alert('Settings saved'); });
+
+    function sigMem(){ try{return JSON.parse(localStorage.getItem(SIG_MEM_KEY)||'{}');}catch{return {}} }
+    function setSigMem(m){ localStorage.setItem(SIG_MEM_KEY, JSON.stringify(m)); }
+
+    async function notifyTelegram(text){
+      const s = loadSettings();
+      if(!s.alerts || !s.relay) return;
+      try{
+        await fetch(s.relay, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ text, chat_id: s.chat || undefined }) });
+      }catch(e){ console.warn('Telegram notify failed', e); }
+    }
+
+    async function analyzeLite(symbol, interval){
+      try{
+        const kl = await fetchKlines(symbol, interval, 300);
+        const closes = kl.map(k=>k.close);
+        const ema50 = EMA(closes,50); const ema200=EMA(closes,200); const rsi=RSI(closes,14); const macd=MACD(closes);
+        return labelSignal({ema50, ema200, rsi, macd});
+      }catch(e){ return null; }
+    }
+
+    async function backgroundScan(){
+      const s = loadSettings(); if(!s.alerts) return;
+      const list = loadWatchlist().slice(0,6); // cap to 6 to be polite
+      const mem = sigMem();
+      for(const sym of list){
+        const res = await analyzeLite(sym, s.bgIv);
+        if(!res) continue;
+        const key = sym+':'+s.bgIv; const prev = mem[key];
+        if(prev !== res.verdict){
+          mem[key] = res.verdict; setSigMem(mem);
+          const txt = `⚡ Signal change for <b>${sym}</b> [${s.bgIv}] → <b>${res.verdict}</b>
+${res.detail}`;
+          notifyTelegram(txt);
+        }
+      }
+    }
+
+    applySettingsUI();
+    setInterval(backgroundScan, 60_000);
+
+    // Watchlist click -> analyze or delete
+    watchlistEl.addEventListener('click', (e)=>{
+      const tgt = e.target.closest('button');
+      if(!tgt) return;
+      if(tgt.dataset.ana){ anaSymbol.value = tgt.dataset.ana; runAnalyze.click(); }
+      if(tgt.dataset.del){ const sym=tgt.dataset.del; const list=loadWatchlist().filter(s=>s!==sym); saveWatchlist(list); renderWatchlist(); }
+    });
+
+    // Initial render
+    renderWatchlist();
+    analyze('BTCUSDT','1h');
+  </script>
+</body>
+</html>
